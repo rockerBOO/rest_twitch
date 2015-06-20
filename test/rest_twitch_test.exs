@@ -6,10 +6,20 @@ defmodule RestTwitchTest do
   end
 
   test "Get a channel object" do 
-    status = RestTwitch.Channels.get("rockerboo")[:status]
+    channel_info = RestTwitch.Channels.get("rockerboo")
 
-    expected = "Elixir Twitch API development. Ask any questions =) "
+    # IO.inspect channel_info    
+
+    status = channel_info[:name]
+
+    expected = "rockerboo"
   
     assert expected == status
+  end
+
+  test "Get a list of videos on the channel" do 
+    channel_info = RestTwitch.Channels.get("lirik", "videos")
+
+    IO.inspect channel_info
   end
 end
