@@ -1,0 +1,2 @@
+defmodule RestTwitch do
+end
