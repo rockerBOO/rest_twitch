@@ -13,7 +13,7 @@ defmodule RestTwitch.Subscriptions do
   # GET /users/:user/subscriptions/:channel   Check if user subscribes to channel
 
   @doc """
-  Authenticated, required scope: channel_subscriptions
+  # Authenticated, required scope: channel_subscriptions
   GET /channels/:channel/subscriptions  Get list of users subscribed to channel
   Get list of users subscribed to channel
 
@@ -24,7 +24,7 @@ defmodule RestTwitch.Subscriptions do
   end
 
   @doc """
-  Authenticated, required scope: channel_subscriptions
+  # Authenticated, required scope: channel_subscriptions
   GET /channels/:channel/subscriptions/:user  Check if channel has user subscribed
   Check if channel has user subscribed
   """

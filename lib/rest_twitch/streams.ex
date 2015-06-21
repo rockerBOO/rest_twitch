@@ -14,14 +14,6 @@ defmodule RestTwitch.Streams do
     ]
   end
 
-  def get(stream, opts \\ %{})
-
-  # GET /streams/:channel/  Get stream object
-  # GET /streams  Get stream object
-  # GET /streams/featured   Get a list of featured streams
-  # GET /streams/summary  Get a summary of streams
-  # GET /streams/followed   Get a list of streams user is following
-  
   @doc """
   GET /streams/:channel/  Get stream object
   Gets a stream object if live. 
@@ -31,10 +23,11 @@ defmodule RestTwitch.Streams do
       iex> RestTwitch.Streams.get("test_user1")
       nil
   """
-  def get(channel, opts) do
+  def get(channel) do
     # 2 response states!!
-    sprintf("/streams/%s", [channel])
-      |> Request.get_body
+    "/streams/%s"
+      |> sprintf([channel])
+      |> Request.get_body()
       |> Request.process_body("stream")
   end
 
@@ -57,10 +50,9 @@ defmodule RestTwitch.Streams do
 
   """
   def search(opts \\ %{}) do
-    query = URI.encode_query(opts)
-
-    sprintf("/streams/?%s", [query])
-      |> Request.get_body
+    "/streams/?%s"
+      |> sprintf([URI.encode_query(opts)])
+      |> Request.get_body()
       |> Request.process_body(%{"streams" => [RestTwitch.Streams.Stream]})
   end
 
@@ -76,8 +68,8 @@ defmodule RestTwitch.Streams do
   """
   def featured(opts) do
     "/streams/featured"
-      |> Request.get_body
-      |> Request.process_body("streams", %{"streams" => [RestTwitch.Streams.Stream]})
+      |> Request.get_body()
+      |> Request.process_body("featured", %{"featured" => [RestTwitch.Featured]})
   end
 
   @doc """
@@ -87,16 +79,16 @@ defmodule RestTwitch.Streams do
   game  optional  string  Only show stats for the set game
 
   ## Examples
-  RestTwitch.Streams.summary(%{"game" => "Half-Life 3"}})
+  RestTwitch.Streams.summary(%{"game" => "Half-Life 3"})
   """
   def summary(opts) do
     "/streams/summary"
-      |> Request.get_body
+      |> Request.get_body()
       |> Poison.decode!()
   end
 
   @doc """
-  Authenticated, required scope: user_read
+  # Authenticated, required scope: user_read
   GET /streams/followed   Get a list of streams user is following
   Get a list of streams user is following
 
@@ -108,7 +100,7 @@ defmodule RestTwitch.Streams do
   """
   def followed(opts) do
     "/streams/followed"
-      |> Request.get_body
+      |> Request.get_body()
       |> Request.process_body(:streams, %{"streams" => [Stream]})
   end
 end
