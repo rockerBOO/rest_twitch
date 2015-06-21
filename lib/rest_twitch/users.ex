@@ -30,13 +30,14 @@ defmodule RestTwitch.Users do
 
   """
   def get(user) do
-    sprintf("/users/%s", [user])
-      |> Request.get_body
+    "/users/%s"
+      |> sprintf([user])
+      |> Request.get_body()
       |> Poison.decode!(as: User)
   end
 
   @doc """
-  Authenticated, required scope: user_read
+  # Authenticated, required scope: user_read
 
   Gets the logged in users object
 
@@ -45,12 +46,12 @@ defmodule RestTwitch.Users do
   """
   def get(:user) do
     "/user"
-      |> Request.get_body
+      |> Request.get_body()
       |> Request.process_body("channels", %{"channels" => [RestTwitch.Channels.Channel]})
   end
 
   @doc """
-  Authenticated, required scope: user_read
+  # Authenticated, required scope: user_read
 
   GET /streams/followed   Get list of streams user is following
 
@@ -65,12 +66,13 @@ defmodule RestTwitch.Users do
   """
   def streams_following() do
     "/streams/followed"
-      |> Request.get_body
+      |> Request.get_body()
       |> Request.process_body("streams", %{"streams" => [RestTwitch.Streams.Stream]})
   end
 
   @doc """
-  Authenticated, required scope: user_read
+  # Authenticated, required scope: user_read
+
   GET /videos/followed  Get list of videos belonging to channels user is following
   https://github.com/justintv/Twitch-API/blob/master/v3_resources/users.md#get-videosfollowed
   Gets the videos this user follows
@@ -85,7 +87,7 @@ defmodule RestTwitch.Users do
   """
   def videos_followed() do
     "/videos/followed"
-      |> Request.get_body
+      |> Request.get_body()
       |> Request.process_body("videos", %{"videos" => [RestTwitch.Videos.Video]})
   end
 end

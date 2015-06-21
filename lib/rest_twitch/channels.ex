@@ -38,9 +38,9 @@ defmodule RestTwitch.Channels do
   RestTwitch.Channels.get("test_channel")
   """
   def get(channel) do
-    url = sprintf("/channels/%s", [channel])
-
-    Request.get_body(url)
+    "/channels/%s"
+      |> sprintf([channel])
+      |> Request.get_body()
       |> Request.process_body(Channel)
   end
 
@@ -48,22 +48,21 @@ defmodule RestTwitch.Channels do
   GET /channels/:channel/videos   Get channel's list of videos
   Get the list of videos on the channel
   
-  limit       optional  integer  Maximum number of objects in array. Default is 10. Maximum is 100.
+  limit       int  Maximum number of objects in array. Default is 10. Maximum is 100.
 
-  offset      optional  integer  Object offset for pagination. Default is 0.
+  offset      int  Object offset for pagination. Default is 0.
 
-  broadcasts  optional  bool     Returns only broadcasts when true. Otherwise only highlights are returned. Default is false.
+  broadcasts  bool Returns only broadcasts when true. Otherwise only highlights are returned. Default is false.
 
-  hls         optional  bool     Returns only HLS VoDs when true. Otherwise only non-HLS VoDs are returned. Default is false.
+  hls         bool Returns only HLS VoDs when true. Otherwise only non-HLS VoDs are returned. Default is false.
 
   ## Examples
   RestTwitch.Channels.videos("test_channel", %{"broadcasts" => false, "hls" => false})
   """
-  def videos(channel, opts \\ %{}) do
-    query = URI.encode_query(opts)
-    url = sprintf("/channels/%s/videos?%s", [channel, query])
-
-    Request.get_body(url)
+  def videos(channel, opts \\ %{}) when is_map(opts) do
+    "/channels/%s/videos?%s"
+      |> sprintf([channel, URI.encode_query(opts)])
+      |> Request.get_body()
       |> Request.process_body("videos", %{"videos" => [RestTwitch.Videos.Video]})
   end
 
@@ -80,25 +79,26 @@ defmodule RestTwitch.Channels do
   ## Examples
   RestTwitch.Channels.followers("test_user1", %{"direction" => "desc"})
   """
-  def followers(channel, opts \\ %{}) do
-    query = URI.encode_query(opts)
-    url = sprintf("/channels/%s/follows?%s", [channel, query])
-
-    Request.get_body(url)
+  def followers(channel, opts \\ %{}) when is_map(opts) do
+    "/channels/%s/follows?%s"
+      |> sprintf([channel, URI.encode_query(opts)])
+      |> Request.get_body()
       |> Request.process_body("follows", %{"follows" => [RestTwitch.Follows.Follow]})
   end
 
   @doc """
-  Authenticated, required scope: channel_read
+  # Authenticated, required scope: channel_read
   GET /channels/:channel/editors  Get channel's list of editors
   Get the list of editors on the channel
 
   ## Examples
+  # UNTESTED
   RestTwitch.Channels.followers("test_user1", %{"direction" => "desc"})
   """
   def editors(channel) do
-    url = sprintf("/channels/%s/editors", [channel])
-    Request.get_body(url)
+    "/channels/%s/editors"
+      |> sprintf([channel])
+      |> Request.get_body()
       |> Request.process_body("users", %{"users" => [RestTwitch.Users.User]})
   end
 
@@ -109,8 +109,9 @@ defmodule RestTwitch.Channels do
   RestTwitch.Channels.teams("test_user1")
   """
   def teams(channel) do
-    url = sprintf("/channels/%s/teams", [channel])
-    Request.get_body(url)
+    "/channels/%s/teams"
+      |> sprintf([channel])
+      |> Request.get_body()
       |> Request.process_body("teams", %{"teams" => [RestTwitch.Teams.Team]})
   end
 
@@ -131,7 +132,8 @@ defmodule RestTwitch.Channels do
   length = length of commerical
   """
   def commerical(channel, length \\ 30) do
-    sprintf("/channels/%s/commercial", [channel])
+    "/channels/%s/commercial"
+      |> sprintf([channel])
       |> Request.post("length=" <> length)
   end
 end

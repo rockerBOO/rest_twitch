@@ -16,19 +16,20 @@ defmodule RestTwitch.Follows do
   GET /users/:user/follows/channels   Get a user's list of followed channels
   Get a user's list of followed channels
 
-  limit      optional  integer  Maximum number of objects in array. Default is 25. Maximum is 100.
+  limit      int     Maximum number of objects in list. Default is 25. Maximum is 100.
 
-  offset     optional  integer  Object offset for pagination. Default is 0.
+  offset     int     Object offset for pagination. Default is 0.
 
-  direction  optional  string   Creation date sorting direction. Default is desc. Valid values are asc and desc.
+  direction  string  Creation date sorting direction. Default is "desc". Valid values are "asc" and "desc".
 
   ## Examples
   RestTwitch.Follows.get("test_user1", %{"direction" => "desc"})
   """
-  def get(user, :follows) do
-    sprintf("/users/%s/follows/channels", [user])
+  def get(user, opts \\ %{}) do
+    "/users/%s/follows/channels?%s"
+      |> sprintf([user, URI.encode_query(opts)])
       |> Request.get_body()
-      |> Request.process_body(:follows, Follow)
+      |> Request.process_body("follows", %{"follows" => [Follow]})
   end
 
   @doc """
@@ -36,13 +37,13 @@ defmodule RestTwitch.Follows do
   Get status of follow relationship between user and target channel
   
   ## Examples
-      iex> RestTwitch.Follows.get("test_user1", :follows, "test_channel")
+      iex> RestTwitch.Follows.follows("test_user1", "test_channel")
       "test_user1 is not following test_channel"
   """
-  def get(user, :follows, target) do
-    url = sprintf("/users/%s/follows/channels/%s", [user, target])
-
-    r = Request.get!(url)
+  def follows(user, target) do
+    r = "/users/%s/follows/channels/%s"
+      |> sprintf([user, target])
+      |> Request.get!()
 
     case r.status_code do
       404 -> Request.process_body(r.body, "message")
@@ -51,7 +52,7 @@ defmodule RestTwitch.Follows do
   end
 
   @doc """
-  Authenticated, required scope: user_follows_edit
+  # Authenticated, required scope: user_follows_edit
   PUT /users/:user/follows/channels/:target   Follow a channel
   Follow a channel
   """
@@ -62,7 +63,7 @@ defmodule RestTwitch.Follows do
   # end
 
   @doc """
-  Authenticated, required scope: user_follows_edit
+  # Authenticated, required scope: user_follows_edit
   DELETE /users/:user/follows/channels/:target  Unfollow a channel
   Unfollow a channel
   """
