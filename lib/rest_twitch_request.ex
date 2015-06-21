@@ -36,10 +36,14 @@ defmodule RestTwitch.Request do
         channel: RestTwitch.Channels.Channel, created_at: nil, game: nil,
         video_height: nil, viewers: nil}]
   """
-  def process_body(body, struct_map) 
-    when is_map(struct_map) do
+  def process_body(body, struct_map) when is_map(struct_map) do
     Poison.decode!(body, 
       as: struct_map)
+  end
+
+  def process_body(body, struct) when is_atom(struct) do
+    Poison.decode!(body, 
+      as: struct)
   end
 
   @doc """

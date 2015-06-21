@@ -1,3 +1,4 @@
+# DONEish
 defmodule RestTwitch.Users do
   alias RestTwitch.Request 
   import ExPrintf
@@ -36,25 +37,55 @@ defmodule RestTwitch.Users do
 
   @doc """
   Authenticated, required scope: user_read
-  
+
   Gets the logged in users object
 
   ## Example
-    iex> RestTwitch.Users.get(:user)
-    "nimolo00"
+  RestTwitch.Users.get(:user)
   """
-  # def get(:user) do
-  #   "/user"
-  #     |> Request.get_body
-  #     |> Request.process_response_body(:channels, RestTwitch.Channels.Channel)
-  # end
+  def get(:user) do
+    "/user"
+      |> Request.get_body
+      |> Request.process_body("channels", %{"channels" => [RestTwitch.Channels.Channel]})
+  end
 
   @doc """
-  Gets the videos this user follows
+  Authenticated, required scope: user_read
+
+  GET /streams/followed   Get list of streams user is following
+
+  limit   optional  integer   Maximum number of objects in array. Default is 25. Maximum is 100.
+
+  offset  optional  integer   Object offset for pagination. Default is 0.
+  
+  ## Example
+
+  # Does not work yet
+  RestTwitch.users.streams_following()
   """
-  # def videos_followed(user) do
-  #   "/videos/followed"
-  #     |> Request.get_body
-  #     |> Request.process_response_body(:videos, RestTwitch.Videos.Video)
-  # end
+  def streams_following() do
+    "/streams/followed"
+      |> Request.get_body
+      |> Request.process_body("streams", %{"streams" => [RestTwitch.Streams.Stream]})
+  end
+
+  @doc """
+  Authenticated, required scope: user_read
+  GET /videos/followed  Get list of videos belonging to channels user is following
+  https://github.com/justintv/Twitch-API/blob/master/v3_resources/users.md#get-videosfollowed
+  Gets the videos this user follows
+
+  limit   optional  integer   Maximum number of objects in array. Default is 10. Maximum is 100.
+
+  offset  optional  integer   Object offset for pagination. Default is 0.
+
+  ## Example
+  # Does not work yet
+  RestTwitch.Users.videos_followed()
+  """
+  def videos_followed() do
+    "/videos/followed"
+      |> Request.get_body
+      |> Request.process_body("videos", %{"videos" => [RestTwitch.Videos.Video]})
+  end
 end
