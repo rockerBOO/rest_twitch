@@ -5,22 +5,57 @@ defmodule RestTwitch.Request do
     "https://api.twitch.tv/kraken/" <> url
   end
 
-  def process_response_body(body, k, struct) do
-    struct_map = Map.new
-      |> Map.put(k, [struct])
+  @doc """
+  Process a response body for the json key, with the struct_map mapping
 
-    
+  ## Example
+      iex> "{\\"streams\\": [{\\"_id\\": 2983782}, {\\"_id\\": 298343}]}" |>
+      ...> RestTwitch.Request.process_body("streams", %{"streams" => [RestTwitch.Streams.Stream]})
+      [%RestTwitch.Streams.Stream{_id: 2983782, average_fps: nil,
+        channel: RestTwitch.Channels.Channel, created_at: nil, game: nil,
+        video_height: nil, viewers: nil},
+       %RestTwitch.Streams.Stream{_id: 298343, average_fps: nil,
+        channel: RestTwitch.Channels.Channel, created_at: nil, game: nil,
+        video_height: nil, viewers: nil}]
+
+  """
+  def process_body(body, key, struct_map) 
+    when is_map(struct_map) do
     Poison.decode!(body, 
       as: struct_map)
-      |> Enum.map(fn({k, v}) -> {String.to_atom(k), v} end)
+      |> Map.fetch!(key)
   end
 
-  def process_response_body(body, atom) do
-    Poison.decode!(body[atom])
-      |> Enum.map(fn({k, v}) -> {String.to_atom(k), v} end)
+  @doc """
+  Process a response body for the json key, with the struct_map mapping
+
+  ## Example
+      iex> "{\\"stream\\": {\\"_id\\": 2983782}" |>
+      ...> RestTwitch.Request.process_body(%{"stream" => RestTwitch.Streams.Stream})
+      [%RestTwitch.Streams.Stream{_id: 2983782, average_fps: nil,
+        channel: RestTwitch.Channels.Channel, created_at: nil, game: nil,
+        video_height: nil, viewers: nil}]
+  """
+  def process_body(body, struct_map) 
+    when is_map(struct_map) do
+    Poison.decode!(body, 
+      as: struct_map)
   end
 
-  def request_get(url) do
+  @doc """
+  Process a response body for the json key
+
+  ## Example
+      iex> "{\\"stream\\": {\\"_id\\": 2983782}}" |>
+      ...> RestTwitch.Request.process_body("stream")
+      %{"_id" => 2983782}
+  """
+  def process_body(body, key) do
+    Poison.decode!(body)
+      |> Map.fetch!(key)
+  end
+
+  def get_body(url) do
     get!(url).body
   end
 

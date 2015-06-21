@@ -15,7 +15,6 @@ defmodule RestTwitch.Videos do
       :views,
       :broadcast_type,
       channel: %RestTwitch.Channels.Channel{},
-      _link: %RestTwitch.Link{},
   	]
   end
 

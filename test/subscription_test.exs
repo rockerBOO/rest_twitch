@@ -1,7 +1,5 @@
 defmodule SubscriptionTest do 
   use ExUnit.Case
 
-  test "" do
-    
-  end
+  doctest RestTwitch.Subscriptions
 end

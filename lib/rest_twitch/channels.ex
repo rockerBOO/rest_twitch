@@ -11,7 +11,7 @@ defmodule RestTwitch.Channels do
       :game,
       :delay,
       :language,
-      :id,
+      :_id,
       :name,
       :created_at,
       :updated_at,
@@ -24,52 +24,51 @@ defmodule RestTwitch.Channels do
       :partner,
       :url,
       :views,
-      :followers
+      :followers,
+      :_link,
     ]
   end
 
-  # GET /channels/:channel   Get channel object
-  # GET /channel  Get channel object
-  # GET /channels/:channel/videos   Get channel's list of videos
-  # GET /channels/:channel/follows  Get channel's list of following users
-  # GET /channels/:channel/editors  Get channel's list of editors
-
   @doc """
+  GET /channels/:channel   Get channel object
   Get a channel object
   """
   def get(channel) do
     url = sprintf("/channels/%s", [channel])
 
-    Request.request_get(url)
-      |> Request.process_response_body("channels", Channel)
+    Request.get_body(url)
+      |> Request.process_response_body(:channels, Channel)
   end
 
   @doc """
+  GET /channels/:channel/videos   Get channel's list of videos
   Get the list of videos on the channel
   """
   def get(channel, "videos") do
     url = sprintf("/channels/%s/videos", [channel])
 
-    Request.request_get(url)
-      |> Request.process_response_body("videos", RestTwitch.Videos.Video)
+    Request.get_body(url)
+      |> Request.process_response_body(:videos, RestTwitch.Videos.Video)
   end
 
   @doc """
+  GET /channels/:channel/follows  Get channel's list of following users
   Get the list of following users on the channel
   """
   # def get(channel, "follows") do
   #   url = sprintf("/channels/%s/follows", [channel])
-  #   request_get(url)
-  #     |> Request.process_response_body("follows")
+  #   get_body(url)
+  #     |> Request.process_response_body(:follows)
   # end
 
   @doc """
+  GET /channels/:channel/editors  Get channel's list of editors
   Get the list of editors on the channel
   """
   # def get(channel, "editors") do
   #   url = sprintf("/channels/%s/editors", [channel])
-  #   request_get(url)
-  #     |> Request.process_response_body("editors")
+  #   get_body(url)
+  #     |> Request.process_response_body(:editors)
   # end
 
   @doc """
@@ -77,22 +76,28 @@ defmodule RestTwitch.Channels do
   """
   # def get(channel, "teams") do
   #   url = sprintf("/channels/%s/teams", [channel])
-  #   request_get(url)
-  #     |> Request.process_response_body("teams")
+  #   get_body(url)
+  #     |> Request.process_response_body(:teams)
   # end
 
   # PUT /channels/:channel  Update channel object
-  # DELETE /channels/:channel/stream_key  Reset channel's stream key
-  # POST /channels/:channel/commercial  Start a commercial on channel
-  # GET /channels/:channel/teams  Get list of teams channel belongs to
   
-  def get(channel, data) do
-    url = sprintf("/channels/%s/videos", [channel])
-    Request.put(url, data)
+  @doc """
+  PUT /channels/:channel  Update channel object
+  Update channel object
+  """
+  def put(channel, data) do
+    sprintf("/channels/%s/videos", [channel])
+      |> Request.put(data)
   end
 
+  @doc """
+  POST /channels/:channel/commercial  Start a commercial on channel
+  Start a commercial on channel
+  length = length of commerical
+  """
   def commerical(channel, length \\ 30) do
-    url = sprintf("/channels/%s/commercial", [channel])
-    Request.post(url, "length=" <> length).body[:status]
+    sprintf("/channels/%s/commercial", [channel])
+      |> Request.post("length=" <> length)
   end
 end
