@@ -1,6 +1,8 @@
 RestTwitch
 ==========
 
+RestTwitch is a Elixir Library for accessing the Twitch REST API. 
+
 ## Get a channel object
 
 	iex>   RestTwitch.Channels.get("test_channel")
