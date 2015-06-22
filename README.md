@@ -5,7 +5,11 @@ RestTwitch is a Elixir Library for accessing the Twitch REST API.
 
 In PRE-ALPHA, and in heavy development. Open to all pull requests and contributions.
 
-Examples are shown using `iex -S mix` in the main directory.
+To start:
+
+1. `mix deps.get`
+2. `iex -S mix`
+
 
 ## Get a channel object
 

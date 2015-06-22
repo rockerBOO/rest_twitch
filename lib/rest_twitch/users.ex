@@ -66,17 +66,14 @@ defmodule RestTwitch.Users do
   
   ## Example
 
-  OAuth2.AccessToken.new(%{
-  "token_type" => "OAuth ", 
-  "access_token" => System.get_env("TWITCH_ACCESS_TOKEN")
-  }, OAuth2.Twitch.new()) |> 
+  token = System.get_env("TWITCH_ACCESS_TOKEN")
   
   RestTwitch.Users.streams_following(token, %{"limit" => 25})
   """
   def streams_following(token, opts \\ %{}) do
     "/streams/followed"
-      |> Request.get_body(token, opts)
-      # |> Request.process_body("streams", %{"streams" => [RestTwitch.Streams.Stream]})
+      |> Request.get_auth!(token, opts)
+      |> Request.process_body("streams", %{"streams" => [RestTwitch.Streams.Stream]})
   end
 
   @doc """

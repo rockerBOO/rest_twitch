@@ -1,5 +1,9 @@
-defmodule RestTwitch.Request do
+defmodule RestTwitch.Request.OLD do
   use HTTPoison.Base
+
+  def process_url("/" <> url) do
+    "https://api.twitch.tv/kraken" <> url
+  end
 
   def process_url(url) do
     "https://api.twitch.tv/kraken/" <> url
@@ -19,10 +23,8 @@ defmodule RestTwitch.Request do
         video_height: nil, viewers: nil}]
 
   """
-  def process_body(body, key, struct_map) 
-    when is_map(struct_map) do
-    Poison.decode!(body, 
-      as: struct_map)
+  def decode_json(body, key, as) when is_map(as) do
+    Poison.decode!(body, as: as)
       |> Map.fetch!(key)
   end
 
@@ -67,19 +69,26 @@ defmodule RestTwitch.Request do
     get_body(url <> encode(opts), token)
   end
 
+  def get_auth(url, auth) do
+    # get()
+    {:ok, auth}
+  end
+
   def get_body(url, token) do
     IO.inspect url
  
     # auth
-    auth = System.get_env("TWITCH_ACCESS_TOKEN")
+    # auth = System.get_env("TWITCH_ACCESS_TOKEN")
 
-    headers = [{"Authorization", "OAuth " <> token.access_token}]
+    # headers = [{"Authorization", "OAuth " <> token.access_token}]
 
-    token |> OAuth2.AccessToken.get!(url, headers)  
+    token |> Elirc.TokenRequest.get!(url)  
     # get!(url, headers).body
   end
 
   def get_body(url) do
+    IO.inspect url 
+
     get!(url).body
   end
 

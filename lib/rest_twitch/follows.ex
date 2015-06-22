@@ -56,11 +56,11 @@ defmodule RestTwitch.Follows do
   PUT /users/:user/follows/channels/:target   Follow a channel
   Follow a channel
   """
-  # def put(user, :follows, target) do
-  #   sprintf("/users/%s/follows/channels/%s", [user, target])
-  #     |> Request.get_body()
-  #     |> Request.process_response_body("channels", [RestTwitch.Channels.Channel])
-  # end
+  def put(user, :follows, target) do
+    sprintf("/users/%s/follows/channels/%s", [user, target])
+      |> Request.get_body()
+      |> Request.process_response_body("channels", [RestTwitch.Channels.Channel])
+  end
 
   @doc """
   # Authenticated, required scope: user_follows_edit
