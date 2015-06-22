@@ -92,14 +92,18 @@ defmodule RestTwitch.Channels do
   Get the list of editors on the channel
 
   ## Examples
-  # UNTESTED
-  RestTwitch.Channels.followers("test_user1", %{"direction" => "desc"})
+  token = OAuth2.AccessToken.new(%{
+  "token_type" => "OAuth ", 
+  "access_token" => System.get_env("TWITCH_ACCESS_TOKEN")
+  }, OAuth2.Twitch.new())
+  
+  RestTwitch.Channels.editors(token, "test_channel")
   """
-  def editors(channel) do
+  def editors(token, channel) do
     "/channels/%s/editors"
       |> sprintf([channel])
-      |> Request.get_body()
-      |> Request.process_body("users", %{"users" => [RestTwitch.Users.User]})
+      |> Request.get_body(token)
+      # |> Request.process_body("users", %{"users" => [RestTwitch.Users.User]})
   end
 
   @doc """
@@ -108,11 +112,11 @@ defmodule RestTwitch.Channels do
   ## Examples
   RestTwitch.Channels.teams("test_user1")
   """
-  def teams(channel) do
+  def teams(token, channel) do
     "/channels/%s/teams"
       |> sprintf([channel])
-      |> Request.get_body()
-      |> Request.process_body("teams", %{"teams" => [RestTwitch.Teams.Team]})
+      |> Request.get_body(token)
+      # |> Request.process_body("teams", %{"teams" => [RestTwitch.Teams.Team]})
   end
 
   # PUT /channels/:channel  Update channel object
@@ -131,7 +135,7 @@ defmodule RestTwitch.Channels do
   Start a commercial on channel
   length = length of commerical
   """
-  def commerical(channel, length \\ 30) do
+  def commerical(token, channel, length \\ 30) do
     "/channels/%s/commercial"
       |> sprintf([channel])
       |> Request.post("length=" <> length)

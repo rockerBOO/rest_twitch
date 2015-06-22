@@ -42,11 +42,16 @@ defmodule RestTwitch.Users do
   Gets the logged in users object
 
   ## Example
-  RestTwitch.Users.get(:user)
+  OAuth2.AccessToken.new(%{
+  "token_type" => "OAuth ", 
+  "access_token" => System.get_env("TWITCH_ACCESS_TOKEN")
+  }, OAuth2.Twitch.new()) |> 
+  
+  RestTwitch.Users.get(token)
   """
-  def get(:user) do
+  def get(token) do
     "/user"
-      |> Request.get_body()
+      |> Request.get_body(token)
       |> Request.process_body("channels", %{"channels" => [RestTwitch.Channels.Channel]})
   end
 
@@ -61,13 +66,17 @@ defmodule RestTwitch.Users do
   
   ## Example
 
-  # Does not work yet
-  RestTwitch.users.streams_following()
+  OAuth2.AccessToken.new(%{
+  "token_type" => "OAuth ", 
+  "access_token" => System.get_env("TWITCH_ACCESS_TOKEN")
+  }, OAuth2.Twitch.new()) |> 
+  
+  RestTwitch.Users.streams_following(token, %{"limit" => 25})
   """
-  def streams_following() do
+  def streams_following(token, opts \\ %{}) do
     "/streams/followed"
-      |> Request.get_body()
-      |> Request.process_body("streams", %{"streams" => [RestTwitch.Streams.Stream]})
+      |> Request.get_body(token, opts)
+      # |> Request.process_body("streams", %{"streams" => [RestTwitch.Streams.Stream]})
   end
 
   @doc """
@@ -82,12 +91,17 @@ defmodule RestTwitch.Users do
   offset  optional  integer   Object offset for pagination. Default is 0.
 
   ## Example
-  # Does not work yet
-  RestTwitch.Users.videos_followed()
+
+  token = OAuth2.AccessToken.new(%{
+  "token_type" => "OAuth ", 
+  "access_token" => System.get_env("TWITCH_ACCESS_TOKEN")
+  }, OAuth2.Twitch.new())
+  
+  RestTwitch.Users.videos_followed(token)
   """
-  def videos_followed() do
+  def videos_followed(token) do
     "/videos/followed"
-      |> Request.get_body()
-      |> Request.process_body("videos", %{"videos" => [RestTwitch.Videos.Video]})
+      |> Request.get_body(token)
+      # |> Request.process_body("videos", %{"videos" => [RestTwitch.Videos.Video]})
   end
 end
