@@ -14,7 +14,7 @@ defmodule RestTwitch.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [applications: [:logger, :httpoison]]
+    [applications: [:logger, :httpoison, :oauth2]]
   end
 
   # Dependencies can be Hex packages:
@@ -29,8 +29,9 @@ defmodule RestTwitch.Mixfile do
   defp deps do
     [      
       {:httpoison, "~> 0.7"},
-      {:poison, github: "devinus/poison"},
-      {:exprintf, github: "parroty/exprintf"}
+      # {:poison, github: "devinus/poison"},
+      {:exprintf, github: "parroty/exprintf"},
+      {:oauth2, "~> 0.1.0"}
     ]
   end
 end

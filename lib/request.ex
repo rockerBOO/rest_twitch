@@ -54,9 +54,29 @@ defmodule RestTwitch.Request do
       ...> RestTwitch.Request.process_body("stream")
       %{"_id" => 2983782}
   """
-  def process_body(body, key) do
+  def process_body(body, key) do 
     Poison.decode!(body)
       |> Map.fetch!(key)
+  end
+
+  def encode(opts) do
+    "?" <> URI.encode_query(opts)
+  end
+
+  def get_body(url, token, opts) do 
+    get_body(url <> encode(opts), token)
+  end
+
+  def get_body(url, token) do
+    IO.inspect url
+ 
+    # auth
+    auth = System.get_env("TWITCH_ACCESS_TOKEN")
+
+    headers = [{"Authorization", "OAuth " <> token.access_token}]
+
+    token |> OAuth2.AccessToken.get!(url, headers)  
+    # get!(url, headers).body
   end
 
   def get_body(url) do
