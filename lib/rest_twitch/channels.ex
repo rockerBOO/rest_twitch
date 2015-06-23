@@ -4,7 +4,7 @@ defmodule RestTwitch.Channels do
 
   defmodule Channel do
     defstruct [
-      :mature, 
+      :mature,
       :status,
       :broadcaster_language,
       :display_name,
@@ -32,22 +32,22 @@ defmodule RestTwitch.Channels do
   @doc """
   GET /channels/:channel   Get channel object
   Get a channel object
-  
+
   ## Examples
-    
+
   RestTwitch.Channels.get("test_channel")
   """
   def get(channel) do
     "/channels/%s"
       |> sprintf([channel])
       |> Request.get_body()
-      |> Request.process_body(Channel)
+      |> Request.decode_json(Channel)
   end
 
   @doc """
   GET /channels/:channel/videos   Get channel's list of videos
   Get the list of videos on the channel
-  
+
   limit       int  Maximum number of objects in array. Default is 10. Maximum is 100.
 
   offset      int  Object offset for pagination. Default is 0.
@@ -62,8 +62,8 @@ defmodule RestTwitch.Channels do
   def videos(channel, opts \\ %{}) when is_map(opts) do
     "/channels/%s/videos?%s"
       |> sprintf([channel, URI.encode_query(opts)])
-      |> Request.get_body()
-      |> Request.process_body("videos", %{"videos" => [RestTwitch.Videos.Video]})
+      |> Request.get_body!()
+      |> Request.decode_json("videos", [RestTwitch.Videos.Video])
   end
 
   @doc """
@@ -75,15 +75,15 @@ defmodule RestTwitch.Channels do
   offset     optional  integer  Object offset for pagination. Default is 0.
 
   direction  optional  string   Creation date sorting direction. Default is desc. Valid values are asc and desc.
-  
+
   ## Examples
-  RestTwitch.Channels.followers("test_user1", %{"direction" => "desc"})
+  RestTwitch.Channels.followers("test_user1", [direction: "desc"]})
   """
-  def followers(channel, opts \\ %{}) when is_map(opts) do
+  def followers(channel, opts \\ []) do
     "/channels/%s/follows?%s"
       |> sprintf([channel, URI.encode_query(opts)])
-      |> Request.get_body()
-      |> Request.process_body("follows", %{"follows" => [RestTwitch.Follows.Follow]})
+      |> Request.get_body!()
+      |> Request.decode_json!("follows", [RestTwitch.Follows.Follow])
   end
 
   @doc """
@@ -93,16 +93,16 @@ defmodule RestTwitch.Channels do
 
   ## Examples
   token = OAuth2.AccessToken.new(%{
-  "token_type" => "OAuth ", 
+  "token_type" => "OAuth ",
   "access_token" => System.get_env("TWITCH_ACCESS_TOKEN")
   }, OAuth2.Twitch.new())
-  
+
   RestTwitch.Channels.editors(token, "test_channel")
   """
   def editors(token, channel) do
     "/channels/%s/editors"
       |> sprintf([channel])
-      |> Request.get_body(token)
+      |> Request.get_body!(token)
       # |> Request.process_body("users", %{"users" => [RestTwitch.Users.User]})
   end
 
@@ -115,29 +115,52 @@ defmodule RestTwitch.Channels do
   def teams(token, channel) do
     "/channels/%s/teams"
       |> sprintf([channel])
-      |> Request.get_body(token)
-      # |> Request.process_body("teams", %{"teams" => [RestTwitch.Teams.Team]})
+      |> Request.get_body!(token)
+      |> Request.decode_json!("teams", [RestTwitch.Teams.Team])
   end
 
-  # PUT /channels/:channel  Update channel object
-  
   @doc """
+  Authenticated, required scope: channel_editor
+
   PUT /channels/:channel  Update channel object
   Update channel object
+
+  # DATA
+
+  status  string  Channel's title.
+
+  game    string  Game category to be classified as.
+
+  delay   string  Channel delay in seconds. Requires the channel owner's OAuth token.
+
+  ## Examples
+
+  token = System.get_env("TWITCH_ACCESS_TOKEN")
+
+  RestTwitch.Channels.put("rockerboo", [status: "ElircBOT Takeover. Hand over the CPU CYCLES!!!", game: "Programming"])
+
   """
-  # def put(channel, data) do
-  #   sprintf("/channels/%s/videos", [channel])
-  #     |> Request.put(data)
-  # end
+  def put(channel, data) do
+    sprintf("/channels/%s", [channel])
+      |> Request.do_put!(data)
+  end
 
   @doc """
+  # Authenticated, required scope: channel_commercial
   POST /channels/:channel/commercial  Start a commercial on channel
   Start a commercial on channel
   length = length of commerical
+
+  ## Examples
+
+  token = System.get_env("TWITCH_ACCESS_TOKEN")
+
+  RestTwitch.Channels.commerical(token, channel, 30)
+
   """
   def commerical(token, channel, length \\ 30) do
     "/channels/%s/commercial"
       |> sprintf([channel])
-      |> Request.post("length=" <> length)
+      |> Request.do_post!([{"length", length}])
   end
 end
