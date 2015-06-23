@@ -28,14 +28,14 @@ defmodule RestTwitch.Follows do
   def get(user, opts \\ %{}) do
     "/users/%s/follows/channels?%s"
       |> sprintf([user, URI.encode_query(opts)])
-      |> Request.get_body()
-      |> Request.process_body("follows", %{"follows" => [Follow]})
+      |> Request.get_body!()
+      |> Request.decode_json!("follows", [Follow])
   end
 
   @doc """
   GET /users/:user/follows/channels/:target   Get status of follow relationship between user and target channel
   Get status of follow relationship between user and target channel
-  
+
   ## Examples
       iex> RestTwitch.Follows.follows("test_user1", "test_channel")
       "test_user1 is not following test_channel"
@@ -43,23 +43,21 @@ defmodule RestTwitch.Follows do
   def follows(user, target) do
     r = "/users/%s/follows/channels/%s"
       |> sprintf([user, target])
-      |> Request.get!()
-
-    case r.status_code do
-      404 -> Request.process_body(r.body, "message")
-      200 -> Request.process_body(r.body, "channel", %{"channel" => RestTwitch.Channels.Channel})
-    end
+      |> Request.get_body!()
+      |> Request.decode_json!("channel", RestTwitch.Channels.Channel)
   end
 
   @doc """
   # Authenticated, required scope: user_follows_edit
   PUT /users/:user/follows/channels/:target   Follow a channel
   Follow a channel
+
+  notifications   boolean   Whether :user should receive email/push notifications (depending on their notification settings) when :target goes live. Default is false.
   """
-  def put(user, :follows, target) do
-    sprintf("/users/%s/follows/channels/%s", [user, target])
-      |> Request.get_body()
-      |> Request.process_response_body("channels", [RestTwitch.Channels.Channel])
+  # put!(url, body, headers \\ [], options \\ [])
+  def follow(token, user, target, opts \\ []) do
+    sprintf("/users/%s/follows/channels/%s?%s", [user, target, URI.encode_query(opts)])
+      |> Request.do_put!(token, [])
   end
 
   @doc """
@@ -67,9 +65,9 @@ defmodule RestTwitch.Follows do
   DELETE /users/:user/follows/channels/:target  Unfollow a channel
   Unfollow a channel
   """
-  # def delete(user, :unfollow, target) do
-  #   sprintf("/users/%s/follows/channels/%s", [user, target])
-  #     |> Request.delete()
-  #     |> Request.process_response_body("channels", [RestTwitch.Channels.Channel])
-  # end
+  def delete(user, :unfollow, target) do
+    sprintf("/users/%s/follows/channels/%s", [user, target])
+      |> Request.do_delete!()
+      |> Request.decode_json!("channels", [RestTwitch.Channels.Channel])
+  end
 end

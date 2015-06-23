@@ -1,11 +1,12 @@
 # DONEish
 defmodule RestTwitch.Users do
-  alias RestTwitch.Request 
+  alias RestTwitch.Request
+  alias RestTwitch.TokenRequest
   import ExPrintf
 
   defmodule User do
     defstruct [
-      :type, 
+      :type,
       :name,
       :created_at,
       :_links,
@@ -32,8 +33,8 @@ defmodule RestTwitch.Users do
   def get(user) do
     "/users/%s"
       |> sprintf([user])
-      |> Request.get_body()
-      |> Poison.decode!(as: User)
+      |> Request.get_body!()
+      |> Request.decode_json!(RestTwitch.Channels.User)
   end
 
   @doc """
@@ -42,17 +43,14 @@ defmodule RestTwitch.Users do
   Gets the logged in users object
 
   ## Example
-  OAuth2.AccessToken.new(%{
-  "token_type" => "OAuth ", 
-  "access_token" => System.get_env("TWITCH_ACCESS_TOKEN")
-  }, OAuth2.Twitch.new()) |> 
-  
+  token = System.get_env("TWITCH_ACCESS_TOKEN")
+
   RestTwitch.Users.get(token)
   """
   def get(token) do
     "/user"
-      |> Request.get_body(token)
-      |> Request.process_body("channels", %{"channels" => [RestTwitch.Channels.Channel]})
+      |> Request.get_token_body!(token)
+      |> Request.decode_json!("channels", [RestTwitch.Channels.Channel])
   end
 
   @doc """
@@ -63,17 +61,16 @@ defmodule RestTwitch.Users do
   limit   optional  integer   Maximum number of objects in array. Default is 25. Maximum is 100.
 
   offset  optional  integer   Object offset for pagination. Default is 0.
-  
-  ## Example
 
+  ## Example
   token = System.get_env("TWITCH_ACCESS_TOKEN")
-  
-  RestTwitch.Users.streams_following(token, %{"limit" => 25})
+  RestTwitch.Users.streams_following(token, [limit: 25])
+
   """
-  def streams_following(token, opts \\ %{}) do
+  def streams_following(token, opts \\ []) do
     "/streams/followed"
-      |> Request.get_auth!(token, opts)
-      |> Request.process_body("streams", %{"streams" => [RestTwitch.Streams.Stream]})
+      |> Request.get_token_body!(token, [], opts)
+      |> Request.decode_json!("streams", [RestTwitch.Streams.Stream])
   end
 
   @doc """
@@ -89,16 +86,13 @@ defmodule RestTwitch.Users do
 
   ## Example
 
-  token = OAuth2.AccessToken.new(%{
-  "token_type" => "OAuth ", 
-  "access_token" => System.get_env("TWITCH_ACCESS_TOKEN")
-  }, OAuth2.Twitch.new())
-  
+  token = System.get_env("TWITCH_ACCESS_TOKEN")
+
   RestTwitch.Users.videos_followed(token)
   """
-  def videos_followed(token) do
+  def videos_followed(token, opts \\ []) do
     "/videos/followed"
-      |> Request.get_body(token)
-      # |> Request.process_body("videos", %{"videos" => [RestTwitch.Videos.Video]})
+      |> Request.get_token_body!(token, [], opts)
+      |> Request.decode_json!("videos", [RestTwitch.Videos.Video])
   end
 end
