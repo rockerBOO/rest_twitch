@@ -67,7 +67,7 @@ defmodule RestTwitch.Request do
   end
 
   def get_body(url, headers \\ [], opts \\ []) do
-    case get(url, headers) do
+    case get(url, req_headers(headers)) do
       {:ok, r} -> handle_response(r, "GET_BODY #{url}")
       {:error, error} -> %Error{reason: error}
     end
@@ -82,15 +82,17 @@ defmodule RestTwitch.Request do
   end
 
   def do_put(url, data, headers \\ [], opts \\ []) do
+    headers =
+
     body = list_to_string(data)
-    case put(url, body, headers, opts) do
+    case put(url, body, req_headers(headers), opts) do
       {:ok, r} -> handle_response(r, "PUT #{url} #{body} #{IO.inspect opts}")
       {:error, error} -> %Error{reason: error}
     end
   end
 
   def do_delete(url, headers \\ [], opts \\ []) do
-    case delete(url, headers, opts) do
+    case delete(url, req_headers(headers), opts) do
       {:ok, r} -> handle_response(r, "DELETE #{url} {IO.inspect opts}")
       {:error, error} -> %Error{reason: "Unprocessable Entity"}
     end
@@ -114,5 +116,10 @@ defmodule RestTwitch.Request do
   # token == TWITCH_ACCESS_TOKEN
   def req_headers(token_type, token, headers) do
     [{"Authorization", "#{token_type} #{token}"} | headers]
+      |> Enum.into({"Accept", "application/vnd.twitchtv.v3+json"})
+  end
+
+  def req_headers(headers) do
+    [{"Accept", "application/vnd.twitchtv.v3+json"} | headers]
   end
 end
