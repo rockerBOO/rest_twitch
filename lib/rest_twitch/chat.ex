@@ -1,4 +1,6 @@
 defmodule RestTwitch.Chat do
+  alias RestTwitch.Request
+
   defmodule Emoticon do
 
     # "regex": "\:-?\(",
@@ -17,24 +19,41 @@ defmodule RestTwitch.Chat do
     #   }
     # ]
     defstruct [
-      :type, 
+      :type,
 
     ]
   end
 	# GET /chat/:channel 	Get links object to other chat endpoints
-	# GET /chat/:channel/badges 	Get chat badges for channel
-	# GET /chat/emoticons 	Get list of every emoticon objectz
-	def get(channel) do
+	#
+	# GET /chat/emoticons 	Get list of every emoticon object
 
+  @doc """
+  GET /chat/:channel/badges   Get chat badges for channel
+
+  ## Examples
+
+  RestTwitch.Chat.badges("test_channel")
+
+  """
+  def badges(channel) do
+    "/chat/%s/badges"
+      |> Request.get_body!()
+      |> Request.decode_json!()
   end
 
-  def get(channel, "badges") do
+  @doc """
+  GET /chat/emoticons   Get list of every emoticon object
 
-  end
+  ## Currently responds 504
 
-  def get("emoticons") do
+  ## Examples
+
+  RestTwitch.Chat.emoticons()
+
+  """
+  def emoticons() do
     "/chat/emoticons"
-      |> Request.request_get
-      |> Request.process_response_body("channels", RestTwitch.Chat.Emoticon)
+      |> Request.get_body!()
+      |> Request.decode_json!("emoticons", [RestTwitch.Chat.Emoticon])
   end
 end
