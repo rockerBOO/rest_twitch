@@ -19,9 +19,8 @@ defmodule RestTwitch.Streams do
   Gets a stream object if live.
 
   ## Examples
-
-      iex> RestTwitch.Streams.get("test_user1")
-      nil
+  RestTwitch.Streams.get("test_user1")
+  nil
   """
   def get(channel) do
     # 2 response states!!
