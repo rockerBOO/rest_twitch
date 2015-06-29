@@ -37,8 +37,8 @@ defmodule RestTwitch.Follows do
   Get status of follow relationship between user and target channel
 
   ## Examples
-      iex> RestTwitch.Follows.follows("test_user1", "test_channel")
-      "test_user1 is not following test_channel"
+  RestTwitch.Follows.follows("test_user1", "test_channel")
+  "test_user1 is not following test_channel"
   """
   def follows(user, target) do
     r = "/users/%s/follows/channels/%s"

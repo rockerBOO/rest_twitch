@@ -21,13 +21,13 @@ defmodule RestTwitch.Users do
   GET /users/:user  Get user object
 
   ## Example
-      iex> RestTwitch.Users.get("nimolo00")
-      %RestTwitch.Users.User{_id: 15255898,
-       _links: %{"self" => "https://api.twitch.tv/kraken/users/nimolo00"},
-       bio: "Enter your text here.", created_at: "2010-09-04T04:58:51Z",
-       display_name: "Nimolo00",
-       logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/nimolo00-profile_image-e93f42babc1380a2-300x300.png",
-       name: "nimolo00", type: "user"}
+  RestTwitch.Users.get("nimolo00")
+  %RestTwitch.Users.User{_id: 15255898,
+   _links: %{"self" => "https://api.twitch.tv/kraken/users/nimolo00"},
+   bio: "Enter your text here.", created_at: "2010-09-04T04:58:51Z",
+   display_name: "Nimolo00",
+   logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/nimolo00-profile_image-e93f42babc1380a2-300x300.png",
+   name: "nimolo00", type: "user"}
 
   """
   def get(user) do
