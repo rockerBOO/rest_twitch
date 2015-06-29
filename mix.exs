@@ -3,9 +3,9 @@ defmodule RestTwitch.Mixfile do
 
   def project do
     [app: :rest_twitch,
-     version: "0.1.3",
+     version: "0.1.4",
      elixir: "~> 1.0",
-     description: "Twitch Chat Bot",
+     description: "REST API for Twitch.tv",
      package: package,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
