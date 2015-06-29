@@ -3,8 +3,10 @@ defmodule RestTwitch.Mixfile do
 
   def project do
     [app: :rest_twitch,
-     version: "0.0.1",
+     version: "0.1.4",
      elixir: "~> 1.0",
+     description: "REST API for Twitch.tv",
+     package: package,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps]
@@ -27,11 +29,17 @@ defmodule RestTwitch.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [      
+    [
       {:httpoison, "~> 0.7"},
-      # {:poison, github: "devinus/poison"},
+      {:oauth2, "~> 0.1.0"},
       {:exprintf, github: "parroty/exprintf"},
-      {:oauth2, "~> 0.1.0"}
+    ]
+  end
+
+  defp package do
+    [
+      files: ["lib", "mix.exs", "README*"],
+      contributors: ["Dave Lage"]
     ]
   end
 end

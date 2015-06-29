@@ -47,13 +47,11 @@ defmodule RestTwitch.Request do
   end
 
   def get_token_body(url, token, headers \\ [], opts \\ []) do
-    headers = req_headers("OAuth ", token, headers)
-    get_token_body(url, headers, opts)
+    get_token_body(url, req_headers(headers, token), opts)
   end
 
   def get_token_body!(url, token, headers \\ [], opts \\ []) do
-    headers = req_headers("OAuth ", token, headers)
-    case get_body(url, headers, opts) do
+    case get_body(url, req_headers(headers, token), opts) do
       {:ok, body} -> body
       {:error, error} -> raise error
     end
@@ -67,7 +65,7 @@ defmodule RestTwitch.Request do
   end
 
   def get_body(url, headers \\ [], opts \\ []) do
-    case get(url, req_headers(headers)) do
+    case get(url, headers) do
       {:ok, r} -> handle_response(r, "GET_BODY #{url}")
       {:error, error} -> %Error{reason: error}
     end
@@ -82,17 +80,15 @@ defmodule RestTwitch.Request do
   end
 
   def do_put(url, data, headers \\ [], opts \\ []) do
-    headers =
-
     body = list_to_string(data)
-    case put(url, body, req_headers(headers), opts) do
+    case put(url, body, headers, opts) do
       {:ok, r} -> handle_response(r, "PUT #{url} #{body} #{IO.inspect opts}")
       {:error, error} -> %Error{reason: error}
     end
   end
 
   def do_delete(url, headers \\ [], opts \\ []) do
-    case delete(url, req_headers(headers), opts) do
+    case delete(url, headers, opts) do
       {:ok, r} -> handle_response(r, "DELETE #{url} {IO.inspect opts}")
       {:error, error} -> %Error{reason: "Unprocessable Entity"}
     end
@@ -106,20 +102,25 @@ defmodule RestTwitch.Request do
     case r.status_code do
       200 -> {:ok, r.body}
       204 -> {:ok, :ok}
-      401 -> {:error, %Error{reason: "Access Denied #{action}"}}
+      401 -> {:error, %Error{reason: "Access Denied #{action} #{get_error_message(r.body)}"}}
       404 -> {:error, %Error{reason: "Not found #{action}"}}
       422 -> {:error, %Error{reason: "Unprocessable Entity"}}
       _ -> {:error, %Error{reason: "Unprocessable Status Code #{r.status_code}"}}
     end
   end
 
-  # token == TWITCH_ACCESS_TOKEN
-  def req_headers(token_type, token, headers) do
-    [{"Authorization", "#{token_type} #{token}"} | headers]
-      |> Enum.into({"Accept", "application/vnd.twitchtv.v3+json"})
+  def get_error_message(html) do
+    html
+      |> Poison.decode!()
+      |> Map.fetch!("message")
   end
 
-  def req_headers(headers) do
+  def process_request_headers(headers) do
     [{"Accept", "application/vnd.twitchtv.v3+json"} | headers]
+  end
+
+  # token == TWITCH_ACCESS_TOKEN
+  def req_headers(headers, token) do
+    [{"Authorization", "OAuth #{token}"} | headers]
   end
 end

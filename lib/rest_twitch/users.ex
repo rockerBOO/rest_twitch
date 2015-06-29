@@ -21,13 +21,13 @@ defmodule RestTwitch.Users do
   GET /users/:user  Get user object
 
   ## Example
-      iex> RestTwitch.Users.get("nimolo00")
-      %RestTwitch.Users.User{_id: 15255898,
-       _links: %{"self" => "https://api.twitch.tv/kraken/users/nimolo00"},
-       bio: "Enter your text here.", created_at: "2010-09-04T04:58:51Z",
-       display_name: "Nimolo00",
-       logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/nimolo00-profile_image-e93f42babc1380a2-300x300.png",
-       name: "nimolo00", type: "user"}
+  RestTwitch.Users.get("nimolo00")
+  %RestTwitch.Users.User{_id: 15255898,
+   _links: %{"self" => "https://api.twitch.tv/kraken/users/nimolo00"},
+   bio: "Enter your text here.", created_at: "2010-09-04T04:58:51Z",
+   display_name: "Nimolo00",
+   logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/nimolo00-profile_image-e93f42babc1380a2-300x300.png",
+   name: "nimolo00", type: "user"}
 
   """
   def get(user) do
@@ -43,14 +43,13 @@ defmodule RestTwitch.Users do
   Gets the logged in users object
 
   ## Example
-  token = System.get_env("TWITCH_ACCESS_TOKEN")
-
-  RestTwitch.Users.get(token)
+  System.get_env("TWITCH_ACCESS_TOKEN") |>
+  RestTwitch.Users.user()
   """
-  def get(token) do
+  def user(token) do
     "/user"
       |> Request.get_token_body!(token)
-      |> Request.decode_json!("channels", [RestTwitch.Channels.Channel])
+      |> Request.decode_json!(RestTwitch.Users.User)
   end
 
   @doc """
@@ -63,8 +62,8 @@ defmodule RestTwitch.Users do
   offset  optional  integer   Object offset for pagination. Default is 0.
 
   ## Example
-  token = System.get_env("TWITCH_ACCESS_TOKEN")
-  RestTwitch.Users.streams_following(token, [limit: 25])
+  System.get_env("TWITCH_ACCESS_TOKEN") |>
+  RestTwitch.Users.streams_following([limit: 25])
 
   """
   def streams_following(token, opts \\ []) do

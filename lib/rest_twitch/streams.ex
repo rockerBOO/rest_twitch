@@ -16,19 +16,19 @@ defmodule RestTwitch.Streams do
 
   @doc """
   GET /streams/:channel/  Get stream object
-  Gets a stream object if live. 
+  Gets a stream object if live.
 
   ## Examples
-
-      iex> RestTwitch.Streams.get("test_user1")
-      nil
+  RestTwitch.Streams.get("test_user1")
+  nil
   """
   def get(channel) do
     # 2 response states!!
     "/streams/%s"
       |> sprintf([channel])
-      |> Request.get_body()
-      |> Request.process_body("stream")
+      |> Request.get_body!()
+      |> Poison.decode!()
+      |> Map.fetch!("stream")
   end
 
   @doc """
@@ -94,7 +94,7 @@ defmodule RestTwitch.Streams do
 
   limit   optional  integer   Maximum number of objects in array. Default is 25. Maximum is 100.
   offset  optional  integer   Object offset for pagination. Default is 0.
-  
+
   ## Examples
   RestTwitch.Streams.followed(%{"limit" => 25})
   """
