@@ -12,10 +12,6 @@ defmodule RestTwitch.Cache do
   end
 
   def handle_call({:get, key}, _from, state) do
-    IO.puts "waves"
-    IO.puts key
-    IO.inspect state.client
-
     {:reply, state.client |> Exredis.query(["GET", key]), state}
   end
 
