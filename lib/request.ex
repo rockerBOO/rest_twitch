@@ -79,15 +79,15 @@ defmodule RestTwitch.Request do
   def get_cache_decode!(url, config \\ nil, headers \\ [], opts \\ []) do
     key = hash_cache_key(url)
 
-    IO.inspect url
-    IO.inspect key
-    IO.puts "cache"
-    IO.inspect :twitch_cache
+    # IO.inspect url
+    # IO.inspect key
+    # IO.puts "cache"
+    # IO.inspect :twitch_cache
 
     if :twitch_cache do
       case Cache.get(key) do
-        :undefined -> IO.inspect "NOT FROM CACHE"; get_decode_and_cache(url, config, headers, opts)
-        value -> IO.puts "FROM CACHE"; value |> Poison.decode!()
+        :undefined -> get_decode_and_cache(url, config, headers, opts)
+        value -> value |> Poison.decode!()
       end
     else
       get_body!(url, headers, opts)
@@ -108,10 +108,10 @@ defmodule RestTwitch.Request do
   end
 
   def set_to_cache_and_decode(key, value, config) do
-    IO.inspect "SET CACHE KEY"
-    IO.inspect key
+    # IO.inspect "SET CACHE KEY"
+    # IO.inspect key
     # IO.inspect value
-    IO.inspect config
+    # IO.inspect config
 
     Cache.set(key, value)
 
