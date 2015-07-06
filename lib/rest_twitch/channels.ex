@@ -40,8 +40,7 @@ defmodule RestTwitch.Channels do
   def get(channel) do
     "/channels/%s"
       |> sprintf([channel])
-      |> Request.get_body()
-      |> Request.decode_json(Channel)
+      |> Request.get_cached_decode!()
   end
 
   @doc """
@@ -103,6 +102,7 @@ defmodule RestTwitch.Channels do
     "/channels/%s/editors"
       |> sprintf([channel])
       |> Request.get_body!(token)
+      |> Poison.decode!()
       # |> Request.process_body("users", %{"users" => [RestTwitch.Users.User]})
   end
 
