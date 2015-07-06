@@ -49,11 +49,11 @@ defmodule RestTwitch.Streams do
   RestTwitch.Streams.search(%{"game" => "Programming", "channel" => "rockerboo"})
 
   """
-  def search(opts \\ %{}) do
-    "/streams/?%s"
+  def live(opts \\ %{}, cache \\ nil) do
+    "/streams?%s"
       |> sprintf([URI.encode_query(opts)])
-      |> Request.get_body()
-      |> Request.process_body(%{"streams" => [RestTwitch.Streams.Stream]})
+      |> Request.get_cache_decode!(cache)
+      |> Map.fetch!("streams")
   end
 
   @doc """
@@ -66,10 +66,9 @@ defmodule RestTwitch.Streams do
   ## Examples
   RestTwitch.Streams.featured(%{"limit" => 25})
   """
-  def featured(opts) do
+  def featured(opts, cache \\ nil) do
     "/streams/featured"
-      |> Request.get_body()
-      |> Request.process_body("featured", %{"featured" => [RestTwitch.Featured]})
+      |> Request.get_cache_decode!(cache)
   end
 
   @doc """
@@ -81,10 +80,10 @@ defmodule RestTwitch.Streams do
   ## Examples
   RestTwitch.Streams.summary(%{"game" => "Half-Life 3"})
   """
-  def summary(opts) do
-    "/streams/summary"
-      |> Request.get_body()
-      |> Poison.decode!()
+  def summary(opts \\ %{}, cache \\ nil) do
+    "/streams/summary?%s"
+      |> sprintf([URI.encode_query(opts)])
+      |> Request.get_cache_decode!(cache)
   end
 
   @doc """
@@ -98,9 +97,10 @@ defmodule RestTwitch.Streams do
   ## Examples
   RestTwitch.Streams.followed(%{"limit" => 25})
   """
-  def followed(opts) do
+  def followed(opts \\ %{}, cache \\ nil) do
     "/streams/followed"
-      |> Request.get_body()
-      |> Request.process_body(:streams, %{"streams" => [Stream]})
+      |> sprintf([URI.encode_query(opts)])
+      |> Request.get_cache_decode!(cache)
+      |> Map.fetch!("streams")
   end
 end

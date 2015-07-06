@@ -1,6 +1,7 @@
 defmodule RestTwitch.Request do
   use HTTPoison.Base
-
+  alias RestTwitch.Cache.Options
+  alias RestTwitch.Cache
   alias RestTwitch.Error
 
   @url "https://api.twitch.tv/kraken"
@@ -71,6 +72,60 @@ defmodule RestTwitch.Request do
     end
   end
 
+  def hash_cache_key(to_hash) do
+    :crypto.hash(:md5, to_hash) |> Base.encode16
+  end
+
+  def get_cache_decode!(url, config \\ nil, headers \\ [], opts \\ []) do
+    key = hash_cache_key(url)
+
+    # IO.inspect url
+    # IO.inspect key
+    # IO.puts "cache"
+    # IO.inspect :twitch_cache
+
+    if :twitch_cache do
+      case Cache.get(key) do
+        :undefined -> get_decode_and_cache(url, config, headers, opts)
+        value -> value |> Poison.decode!()
+      end
+    else
+      get_body!(url, headers, opts)
+        |> Poison.decode!()
+    end
+  end
+
+  def get_decode_and_cache(url, config, headers, opts) do
+    value = get_body!(url, headers, opts)
+
+    if :twitch_cache do
+      key = hash_cache_key(url)
+
+      set_to_cache_and_decode(key, value, config)
+    else
+      value
+    end
+  end
+
+  def set_to_cache_and_decode(key, value, config) do
+    # IO.inspect "SET CACHE KEY"
+    # IO.inspect key
+    # IO.inspect value
+    # IO.inspect config
+
+    Cache.set(key, value)
+
+    case config do
+      %{ttl: ttl} -> Cache.expire(key, ttl); value |> Poison.decode!()
+      _ -> value |> Poison.decode!()
+    end
+  end
+
+  def get_and_decode(url, headers \\ [], opts \\ []) do
+    get_body!(url, headers, opts)
+      |> Poison.decode!()
+  end
+
   # "/commerical", [{"Length", 30}]
   def do_put!(url, body, headers \\ [], opts \\ []) do
     case do_put(url, body, headers, opts) do
@@ -116,7 +171,8 @@ defmodule RestTwitch.Request do
   end
 
   def process_request_headers(headers) do
-    [{"Accept", "application/vnd.twitchtv.v3+json"} | headers]
+    client_headers = [{"Client-ID", System.get_env("TWITCH_CLIENT_ID")} | headers]
+    [{"Accept", "application/vnd.twitchtv.v3+json"} | client_headers]
   end
 
   # token == TWITCH_ACCESS_TOKEN
