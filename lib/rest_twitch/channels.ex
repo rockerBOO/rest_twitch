@@ -40,7 +40,7 @@ defmodule RestTwitch.Channels do
   def get(channel) do
     "/channels/%s"
       |> sprintf([channel])
-      |> Request.get_cached_decode!()
+      |> Request.get_cache_decode!()
   end
 
   @doc """

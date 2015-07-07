@@ -72,6 +72,10 @@ defmodule RestTwitch.Users do
       |> Request.decode_json!("streams", [RestTwitch.Streams.Stream])
   end
 
+  def streams(token, opts \\ []) do
+    streams_following(token, opts)
+  end
+
   @doc """
   # Authenticated, required scope: user_read
 
