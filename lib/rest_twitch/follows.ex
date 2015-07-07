@@ -48,6 +48,19 @@ defmodule RestTwitch.Follows do
   end
 
   @doc """
+  GET /users/:user/follows/channels   Get a user's list of followed channels
+
+  ## Examples
+  RestTwitch.Follows.follows("test_user1", "test_channel")
+  "test_user1 is not following test_channel"
+  """
+  def channels(user, opts \\ %{}, cache \\ nil) do
+    r = "/users/%s/follows/channels?%s"
+      |> sprintf([user, URI.encode_query(opts)])
+      |> Request.get_cache_decode!(cache)
+  end
+
+  @doc """
   # Authenticated, required scope: user_follows_edit
   PUT /users/:user/follows/channels/:target   Follow a channel
   Follow a channel
