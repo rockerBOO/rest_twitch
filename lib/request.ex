@@ -128,17 +128,16 @@ defmodule RestTwitch.Request do
   end
 
   # "/commerical", [{"Length", 30}]
-  def do_put!(url, body, headers \\ [], opts \\ []) do
-    case do_put(url, body, headers, opts) do
+  def do_put!(url, body, token, headers \\ [], opts \\ []) do
+    case do_put(url, body, token, headers, opts) do
       {:ok, response} -> response
       {:error, error} -> handle_error(error)
     end
   end
 
-  def do_put(url, data, headers \\ [], opts \\ []) do
-    body = list_to_string(data)
-    case put(url, body, headers, opts) do
-      {:ok, r} -> handle_response(r, "PUT #{url} #{body} #{IO.inspect opts}")
+  def do_put(url, body, token, headers \\ [], opts \\ []) do
+    case put(url, body, req_headers(headers, token), opts) do
+      {:ok, r} -> handle_response(r, "PUT #{url} #{body}")
       {:error, error} -> %Error{reason: error}
     end
   end
@@ -155,6 +154,8 @@ defmodule RestTwitch.Request do
   end
 
   def handle_response(r, action \\ "") do
+    IO.puts action
+
     case r.status_code do
       200 -> {:ok, r.body}
       204 -> {:ok, :ok}

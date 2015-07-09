@@ -17,10 +17,11 @@ defmodule OAuth2.Twitch do
     ])
   end
 
-  def authorize_url!(params \\ []) do
-    new()
+  # authorize_url!(%{scope: "user_read"})
+  def authorize_url!(params) do
+    oauth = new()
     |> put_param(:state, @state_token)
-    |> put_param(:scope, "user_read")
+    |> put_param(:scope, params.scope)
     |> OAuth2.Client.authorize_url!(params)
   end
 

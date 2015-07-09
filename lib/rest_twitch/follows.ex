@@ -68,9 +68,10 @@ defmodule RestTwitch.Follows do
   notifications   boolean   Whether :user should receive email/push notifications (depending on their notification settings) when :target goes live. Default is false.
   """
   # put!(url, body, headers \\ [], options \\ [])
-  def follow(token, user, target, opts \\ []) do
-    sprintf("/users/%s/follows/channels/%s?%s", [user, target, URI.encode_query(opts)])
-      |> Request.do_put!(token, [])
+  def follow(token, user, target, opts \\ %{}) do
+    "/users/%s/follows/channels/%s?%s"
+      |> sprintf([user, target, URI.encode_query(opts)])
+      |> Request.do_put!("", token)
   end
 
   @doc """
