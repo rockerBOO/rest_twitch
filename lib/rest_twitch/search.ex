@@ -1,6 +1,7 @@
 defmodule RestTwitch.Search do
   import ExPrintf
   alias RestTwitch.Request
+  use RestTwitch.RestBase
 
   @doc """
   GET /users/:user  Get user object
@@ -12,6 +13,6 @@ defmodule RestTwitch.Search do
     "/search/streams?%s"
       |> sprintf([URI.encode_query(opts)])
       |> Request.get_cache_decode!(cache)
-      |> Map.fetch!("streams")
+      |> get_list("streams")
   end
 end
