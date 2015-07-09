@@ -70,7 +70,6 @@ defmodule RestTwitch.Users do
     "/streams/followed"
       |> Request.get_token_body!(token, [], opts)
       |> Poison.decode!()
-      |> Map.fetch!("streams")
   end
 
   def streams(token, opts \\ []) do
@@ -99,7 +98,6 @@ defmodule RestTwitch.Users do
       |> sprintf([URI.encode_query(opts)])
       |> Request.get_token_body!(token)
       |> Poison.decode!()
-      |> Map.fetch!("videos")
   end
 
   def videos(token, opts \\ []) do
