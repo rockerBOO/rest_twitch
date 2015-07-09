@@ -58,10 +58,11 @@ defmodule RestTwitch.Request do
     end
   end
 
+  # FIXME get_body! only works with json you idiot.
   def get_body!(url, headers \\ [], opts \\ []) do
     case get_body(url, headers, opts) do
       {:ok, body} -> body
-      {:error, error} -> raise error
+      {:error, error} -> IO.puts error.reason; "{}"
     end
   end
 
