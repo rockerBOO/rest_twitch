@@ -53,7 +53,6 @@ defmodule RestTwitch.Streams do
     "/streams?%s"
       |> sprintf([URI.encode_query(opts)])
       |> Request.get_cache_decode!(cache)
-      |> Map.fetch!("streams")
   end
 
   @doc """
