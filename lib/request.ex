@@ -159,10 +159,12 @@ defmodule RestTwitch.Request do
     case r.status_code do
       200 -> {:ok, r.body}
       204 -> {:ok, :ok}
-      401 -> {:error, %Error{reason: "Access Denied #{action} #{get_error_message(r.body)}"}}
-      404 -> {:error, %Error{reason: "Not found #{action}"}}
-      422 -> {:error, %Error{reason: "Unprocessable Entity"}}
-      _ -> {:error, %Error{reason: "Unprocessable Status Code #{r.status_code}"}}
+      401 -> {:error, %Error{code: 401, reason: "Access Denied #{action} #{get_error_message(r.body)}"}}
+      404 -> {:error, %Error{code: 404, reason: "Not found #{action}"}}
+      422 -> {:error, %Error{code: 422, reason: "Unprocessable Entity"}}
+      503 -> {:error, %Error{code: 503, reason: "Service Unavailable"}}
+      502 -> {:error, %Error{code: 502, reason: "Bad Gateway"}}
+      code -> {:error, %Error{code: code, reason: "Unprocessable Status Code #{r.status_code}"}}
     end
   end
 
