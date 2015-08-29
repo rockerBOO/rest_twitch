@@ -61,8 +61,7 @@ defmodule RestTwitch.Channels do
   def videos(channel, opts \\ %{}) when is_map(opts) do
     "/channels/%s/videos?%s"
       |> sprintf([channel, URI.encode_query(opts)])
-      |> Request.get_body!()
-      |> Request.decode_json("videos", [RestTwitch.Videos.Video])
+      |> Request.get_cache_decode!()
   end
 
   @doc """
