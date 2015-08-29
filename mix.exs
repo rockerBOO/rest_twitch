@@ -31,7 +31,7 @@ defmodule RestTwitch.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 0.7"},
-      {:oauth2, "~> 0.1.0"},
+      {:oauth2, "~> 0.3"},
       {:exprintf, github: "parroty/exprintf"},
     ]
   end
