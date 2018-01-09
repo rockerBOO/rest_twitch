@@ -3,7 +3,7 @@ defmodule RestTwitch.Mixfile do
 
   def project do
     [app: :rest_twitch,
-     version: "0.1.4",
+     version: "0.1.5",
      elixir: "~> 1.0",
      description: "REST API for Twitch.tv",
      package: package(),
