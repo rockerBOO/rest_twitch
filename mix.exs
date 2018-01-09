@@ -6,10 +6,10 @@ defmodule RestTwitch.Mixfile do
      version: "0.1.4",
      elixir: "~> 1.0",
      description: "REST API for Twitch.tv",
-     package: package,
+     package: package(),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps()]
   end
 
   # Configuration for the OTP application
