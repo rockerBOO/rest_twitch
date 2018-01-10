@@ -1,14 +1,17 @@
 RestTwitch
 ==========
 
-RestTwitch is a Elixir Library for accessing the Twitch REST API. 
+RestTwitch is a Elixir Library for accessing the Twitch REST API. Using [Kraken Twitch API v5](https://dev.twitch.tv/docs/v5).
 
 Open to all pull requests and contributions.
 
 To start:
 
 1. `mix deps.get`
-2. `iex -S mix`
+
+Set your twitch client id to your environmental variables. You can find this on [dev.twitch.tv/dashboard/apps > Manage](https://dev.twitch.tv/dashboard/apps).
+
+2. `TWITCH_CLIENT_ID=XXX iex -S mix`
 
 
 ## Get a channel object
