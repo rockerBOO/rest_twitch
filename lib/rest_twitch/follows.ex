@@ -1,6 +1,7 @@
 defmodule RestTwitch.Follows do
   alias RestTwitch.Request
   import ExPrintf
+  use RestTwitch.RestBase
 
   defmodule Follow do
     defstruct [
@@ -29,7 +30,6 @@ defmodule RestTwitch.Follows do
     "/users/%s/follows/channels?%s"
       |> sprintf([user, URI.encode_query(opts)])
       |> Request.get_body!()
-      |> Request.decode_json!("follows", [Follow])
   end
 
   @doc """
@@ -41,10 +41,23 @@ defmodule RestTwitch.Follows do
   "test_user1 is not following test_channel"
   """
   def follows(user, target) do
-    r = "/users/%s/follows/channels/%s"
+    "/users/%s/follows/channels/%s"
       |> sprintf([user, target])
       |> Request.get_body!()
-      |> Request.decode_json!("channel", RestTwitch.Channels.Channel)
+      |> Poison.decode!()
+  end
+
+  @doc """
+  GET /users/:user/follows/channels   Get a user's list of followed channels
+
+  ## Examples
+  RestTwitch.Follows.follows("test_user1", "test_channel")
+  "test_user1 is not following test_channel"
+  """
+  def channels(user, opts \\ %{}, cache \\ nil) do
+    "/users/%s/follows/channels?%s"
+      |> sprintf([user, URI.encode_query(opts)])
+      |> Request.get_cache_decode!(cache)
   end
 
   @doc """
@@ -55,9 +68,11 @@ defmodule RestTwitch.Follows do
   notifications   boolean   Whether :user should receive email/push notifications (depending on their notification settings) when :target goes live. Default is false.
   """
   # put!(url, body, headers \\ [], options \\ [])
-  def follow(token, user, target, opts \\ []) do
-    sprintf("/users/%s/follows/channels/%s?%s", [user, target, URI.encode_query(opts)])
-      |> Request.do_put!(token, [])
+  def follow(token, user, target, opts \\ %{}) do
+    "/users/%s/follows/channels/%s?%s"
+      |> sprintf([user, target, URI.encode_query(opts)])
+      |> Request.do_put!("", token)
+      |> Poison.decode!()
   end
 
   @doc """
@@ -68,6 +83,5 @@ defmodule RestTwitch.Follows do
   def delete(user, :unfollow, target) do
     sprintf("/users/%s/follows/channels/%s", [user, target])
       |> Request.do_delete!()
-      |> Request.decode_json!("channels", [RestTwitch.Channels.Channel])
   end
 end

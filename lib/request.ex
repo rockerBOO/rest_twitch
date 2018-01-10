@@ -1,6 +1,7 @@
 defmodule RestTwitch.Request do
   use HTTPoison.Base
-
+  alias RestTwitch.Cache.Options
+  alias RestTwitch.Cache
   alias RestTwitch.Error
 
   @url "https://api.twitch.tv/kraken"
@@ -57,10 +58,11 @@ defmodule RestTwitch.Request do
     end
   end
 
+  # FIXME get_body! only works with json you idiot.
   def get_body!(url, headers \\ [], opts \\ []) do
     case get_body(url, headers, opts) do
       {:ok, body} -> body
-      {:error, error} -> raise error
+      {:error, error} -> IO.puts error.reason; "{}"
     end
   end
 
@@ -71,18 +73,61 @@ defmodule RestTwitch.Request do
     end
   end
 
+  def hash_cache_key(to_hash) do
+    :crypto.hash(:md5, to_hash) |> Base.encode16
+  end
+
+  def get_cache_decode!(url, config \\ nil, headers \\ [], opts \\ []) do
+    key = hash_cache_key(url)
+
+    if :twitch_cache do
+      case Cache.get(key) do
+        :undefined -> get_decode_and_cache(url, config, headers, opts)
+        value -> value |> Poison.decode!()
+      end
+    else
+      get_body!(url, headers, opts)
+        |> Poison.decode!()
+    end
+  end
+
+  def get_decode_and_cache(url, config, headers, opts) do
+    value = get_body!(url, headers, opts)
+
+    if :twitch_cache do
+      key = hash_cache_key(url)
+
+      set_to_cache_and_decode(key, value, config)
+    else
+      value
+    end
+  end
+
+  def set_to_cache_and_decode(key, value, config) do
+    Cache.set(key, value)
+
+    case config do
+      %{ttl: ttl} -> Cache.expire(key, ttl); value |> Poison.decode!()
+      _ -> value |> Poison.decode!()
+    end
+  end
+
+  def get_and_decode(url, headers \\ [], opts \\ []) do
+    get_body!(url, headers, opts)
+      |> Poison.decode!()
+  end
+
   # "/commerical", [{"Length", 30}]
-  def do_put!(url, body, headers \\ [], opts \\ []) do
-    case do_put(url, body, headers, opts) do
+  def do_put!(url, body, token, headers \\ [], opts \\ []) do
+    case do_put(url, body, token, headers, opts) do
       {:ok, response} -> response
       {:error, error} -> handle_error(error)
     end
   end
 
-  def do_put(url, data, headers \\ [], opts \\ []) do
-    body = list_to_string(data)
-    case put(url, body, headers, opts) do
-      {:ok, r} -> handle_response(r, "PUT #{url} #{body} #{IO.inspect opts}")
+  def do_put(url, body, token, headers \\ [], opts \\ []) do
+    case put(url, body, req_headers(headers, token), opts) do
+      {:ok, r} -> handle_response(r, "PUT #{url} #{body}")
       {:error, error} -> %Error{reason: error}
     end
   end
@@ -100,18 +145,20 @@ defmodule RestTwitch.Request do
 
   # https://dev.twitch.tv/docs/v5#errors
   def handle_response(r, action \\ "") do
+    IO.puts action
+
     case r.status_code do
       200 -> {:ok, r.body}
       204 -> {:ok, :ok}
-      400 -> {:error, %Error{reason: "Request Not Valid"}}
-      401 -> {:error, %Error{reason: "Access Denied #{action} #{get_error_message(r.body)}"}}
-      403 -> {:error, %Error{reason: "Forbidden"}}
-      404 -> {:error, %Error{reason: "Not found #{action}"}}
-      422 -> {:error, %Error{reason: "Unprocessable Entity"}}
-      429 -> {:error, %Error{reason: "Too Many Requests"}}
-      500 -> {:error, %Error{reason: "Internal Server Error"}}
-      503 -> {:error, %Error{reason: "Service Unavailable"}}
-      _ -> {:error, %Error{reason: "Unprocessable Status Code #{r.status_code}"}}
+      400 -> {:error, %Error{code: 400, reason: "Request Not Valid"}}
+      401 -> {:error, %Error{code: 401, reason: "Access Denied #{action} #{get_error_message(r.body)}"}}
+      403 -> {:error, %Error{code: 403, reason: "Forbidden"}}
+      404 -> {:error, %Error{code: 404, reason: "Not found #{action}"}}
+      422 -> {:error, %Error{code: 422, reason: "Unprocessable Entity"}}
+      429 -> {:error, %Error{code: 429, reason: "Too Many Requests"}}
+      500 -> {:error, %Error{code: 500, reason: "Internal Server Error"}}
+      503 -> {:error, %Error{code: 503, reason: "Service Unavailable"}}
+      code -> {:error, %Error{code: code, reason: "Unprocessable Status Code #{r.status_code}"}}
     end
   end
 
@@ -122,7 +169,8 @@ defmodule RestTwitch.Request do
   end
 
   def process_request_headers(headers) do
-    [{"Accept", "application/vnd.twitchtv.v3+json"} | headers]
+    client_headers = [{"Client-ID", System.get_env("TWITCH_CLIENT_ID")} | headers]
+    [{"Accept", "application/vnd.twitchtv.v3+json"} | client_headers]
   end
 
   # token == TWITCH_ACCESS_TOKEN

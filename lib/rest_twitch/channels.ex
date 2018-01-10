@@ -40,8 +40,7 @@ defmodule RestTwitch.Channels do
   def get(channel) do
     "/channels/%s"
       |> sprintf([channel])
-      |> Request.get_body()
-      |> Request.decode_json(Channel)
+      |> Request.get_cache_decode!()
   end
 
   @doc """
@@ -62,8 +61,7 @@ defmodule RestTwitch.Channels do
   def videos(channel, opts \\ %{}) when is_map(opts) do
     "/channels/%s/videos?%s"
       |> sprintf([channel, URI.encode_query(opts)])
-      |> Request.get_body!()
-      |> Request.decode_json("videos", [RestTwitch.Videos.Video])
+      |> Request.get_cache_decode!()
   end
 
   @doc """
@@ -103,6 +101,7 @@ defmodule RestTwitch.Channels do
     "/channels/%s/editors"
       |> sprintf([channel])
       |> Request.get_body!(token)
+      |> Poison.decode!()
       # |> Request.process_body("users", %{"users" => [RestTwitch.Users.User]})
   end
 

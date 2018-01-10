@@ -69,7 +69,11 @@ defmodule RestTwitch.Users do
   def streams_following(token, opts \\ []) do
     "/streams/followed"
       |> Request.get_token_body!(token, [], opts)
-      |> Request.decode_json!("streams", [RestTwitch.Streams.Stream])
+      |> Poison.decode!()
+  end
+
+  def streams(token, opts \\ []) do
+    streams_following(token, opts)
   end
 
   @doc """
@@ -90,8 +94,13 @@ defmodule RestTwitch.Users do
   RestTwitch.Users.videos_followed(token)
   """
   def videos_followed(token, opts \\ []) do
-    "/videos/followed"
-      |> Request.get_token_body!(token, [], opts)
-      |> Request.decode_json!("videos", [RestTwitch.Videos.Video])
+    "/videos/followed?%s"
+      |> sprintf([URI.encode_query(opts)])
+      |> Request.get_token_body!(token)
+      |> Poison.decode!()
+  end
+
+  def videos(token, opts \\ []) do
+    videos_followed(token, opts)
   end
 end
