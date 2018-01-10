@@ -146,24 +146,23 @@ defmodule RestTwitch.Request do
   # https://dev.twitch.tv/docs/v5#errors
   def handle_response(r, action \\ "") do
     IO.puts action
-
     case r.status_code do
       200 -> {:ok, r.body}
       204 -> {:ok, :ok}
-      400 -> {:error, %Error{code: 400, reason: "Request Not Valid"}}
-      401 -> {:error, %Error{code: 401, reason: "Access Denied #{action} #{get_error_message(r.body)}"}}
-      403 -> {:error, %Error{code: 403, reason: "Forbidden"}}
-      404 -> {:error, %Error{code: 404, reason: "Not found #{action}"}}
-      422 -> {:error, %Error{code: 422, reason: "Unprocessable Entity"}}
-      429 -> {:error, %Error{code: 429, reason: "Too Many Requests"}}
-      500 -> {:error, %Error{code: 500, reason: "Internal Server Error"}}
-      503 -> {:error, %Error{code: 503, reason: "Service Unavailable"}}
-      code -> {:error, %Error{code: code, reason: "Unprocessable Status Code #{r.status_code}"}}
+      400 -> {:error, %Error{code: 400, reason: "Request Not Valid. #{r.body |> get_error_message()}"}}
+      401 -> {:error, %Error{code: 401, reason: "Access Denied. #{r.body |> get_error_message()}"}}
+      403 -> {:error, %Error{code: 403, reason: "Forbidden. #{r.body |> get_error_message()}"}}
+      404 -> {:error, %Error{code: 404, reason: "Not found. #{r.body |> get_error_message()}"}}
+      422 -> {:error, %Error{code: 422, reason: "Unprocessable Entity. #{r.body |> get_error_message()}"}}
+      429 -> {:error, %Error{code: 429, reason: "Too Many Requests. #{r.body |> get_error_message()}"}}
+      500 -> {:error, %Error{code: 500, reason: "Internal Server Error. #{r.body |> get_error_message()}"}}
+      503 -> {:error, %Error{code: 503, reason: "Service Unavailable. #{r.body |> get_error_message()}"}}
+      code -> {:error, %Error{code: code, reason: "Unprocessable Status Code. #{r.body |> get_error_message()}"}}
     end
   end
 
-  def get_error_message(html) do
-    html
+  def get_error_message(json) do
+    json
       |> Poison.decode!()
       |> Map.fetch!("message")
   end
