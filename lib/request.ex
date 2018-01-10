@@ -98,13 +98,19 @@ defmodule RestTwitch.Request do
     raise error
   end
 
+  # https://dev.twitch.tv/docs/v5#errors
   def handle_response(r, action \\ "") do
     case r.status_code do
       200 -> {:ok, r.body}
       204 -> {:ok, :ok}
+      400 -> {:error, %Error{reason: "Request Not Valid"}}
       401 -> {:error, %Error{reason: "Access Denied #{action} #{get_error_message(r.body)}"}}
+      403 -> {:error, %Error{reason: "Forbidden"}}
       404 -> {:error, %Error{reason: "Not found #{action}"}}
       422 -> {:error, %Error{reason: "Unprocessable Entity"}}
+      429 -> {:error, %Error{reason: "Too Many Requests"}}
+      500 -> {:error, %Error{reason: "Internal Server Error"}}
+      503 -> {:error, %Error{reason: "Service Unavailable"}}
       _ -> {:error, %Error{reason: "Unprocessable Status Code #{r.status_code}"}}
     end
   end
