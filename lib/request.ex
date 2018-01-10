@@ -80,11 +80,6 @@ defmodule RestTwitch.Request do
   def get_cache_decode!(url, config \\ nil, headers \\ [], opts \\ []) do
     key = hash_cache_key(url)
 
-    # IO.inspect url
-    # IO.inspect key
-    # IO.puts "cache"
-    # IO.inspect :twitch_cache
-
     if :twitch_cache do
       case Cache.get(key) do
         :undefined -> get_decode_and_cache(url, config, headers, opts)
@@ -109,11 +104,6 @@ defmodule RestTwitch.Request do
   end
 
   def set_to_cache_and_decode(key, value, config) do
-    # IO.inspect "SET CACHE KEY"
-    # IO.inspect key
-    # IO.inspect value
-    # IO.inspect config
-
     Cache.set(key, value)
 
     case config do
@@ -153,17 +143,21 @@ defmodule RestTwitch.Request do
     raise error
   end
 
+  # https://dev.twitch.tv/docs/v5#errors
   def handle_response(r, action \\ "") do
     IO.puts action
 
     case r.status_code do
       200 -> {:ok, r.body}
       204 -> {:ok, :ok}
+      400 -> {:error, %Error{code: 400, reason: "Request Not Valid"}}
       401 -> {:error, %Error{code: 401, reason: "Access Denied #{action} #{get_error_message(r.body)}"}}
+      403 -> {:error, %Error{code: 403, reason: "Forbidden"}}
       404 -> {:error, %Error{code: 404, reason: "Not found #{action}"}}
       422 -> {:error, %Error{code: 422, reason: "Unprocessable Entity"}}
+      429 -> {:error, %Error{code: 429, reason: "Too Many Requests"}}
+      500 -> {:error, %Error{code: 500, reason: "Internal Server Error"}}
       503 -> {:error, %Error{code: 503, reason: "Service Unavailable"}}
-      502 -> {:error, %Error{code: 502, reason: "Bad Gateway"}}
       code -> {:error, %Error{code: code, reason: "Unprocessable Status Code #{r.status_code}"}}
     end
   end
