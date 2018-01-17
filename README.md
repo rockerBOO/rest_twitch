@@ -9,7 +9,7 @@ To start:
 
 1. `mix deps.get`
 
-Set your twitch client id to your environmental variables. You can find this on [dev.twitch.tv/dashboard/apps > Manage](https://dev.twitch.tv/dashboard/apps).
+Set your `TWITCH_CLIENT_ID` to your environmental variables. You can find this on [dev.twitch.tv/dashboard/apps > Manage](https://dev.twitch.tv/dashboard/apps).
 
 2. `TWITCH_CLIENT_ID=XXX iex -S mix`
 
